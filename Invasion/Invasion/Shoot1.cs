@@ -8,12 +8,16 @@ using GameFramework;
 
 namespace Invasion
 {
-    public class Ufo2 : SpriteObject
+    public class Shoot1 : SpriteObject
     {
+        
         Game _game;
-        public Ufo2(Game game, Vector2 PosicaoInicial, Texture2D texture) : base(game, PosicaoInicial, texture)
+        float DesvioX;
+
+        public Shoot1(Game game, Vector2 PosicaoInicial, Texture2D texture, float Desvio): base(game, PosicaoInicial, texture)
         {
             _game = game;
+            DesvioX = Desvio;
         }
 
         public override void Draw(Microsoft.Xna.Framework.GameTime gameTime, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
@@ -23,6 +27,8 @@ namespace Invasion
 
         public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
+            PositionX += DesvioX;
+            PositionY -= 10;
             base.Update(gameTime);
         }
     }

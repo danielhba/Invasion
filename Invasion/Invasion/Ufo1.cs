@@ -8,7 +8,7 @@ using GameFramework;
 
 namespace Invasion
 {
-    class Ufo1 : SpriteObject
+    public class Ufo1 : SpriteObject
     {
         Game _game;
         public Ufo1(Game game, Vector2 PosicaoInicial, Texture2D texture): base(game, PosicaoInicial, texture)
