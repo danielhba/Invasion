@@ -22,9 +22,16 @@ namespace Invasion
         SpriteBatch spriteBatch;
 
         Ship ship;
-      
-        int type_shoot = 4; 
-        int contador_shoot = 0; 
+
+        int type_shoot = 1;
+        int contador_shoot = 0;
+
+        int velocidade_nivel = 1;
+        int inimigos_total = 1;
+        int inimigos_fazer = 1;
+        int inimigos_restantes = 1;
+        int contar_fazer = 0;
+        int contar_vida = 0;
 
         public Game()
         {
@@ -65,7 +72,7 @@ namespace Invasion
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            
+
             // Carregando as imagens do jogo
             {
                 //Imagem de background
@@ -90,6 +97,7 @@ namespace Invasion
                 //Imagens do tiro
                 Textures.Add("shoot1", Content.Load<Texture2D>("Sprites/shoot1"));
                 Textures.Add("shoot2", Content.Load<Texture2D>("Sprites/shoot2"));
+                Fonts.Add("vida", Content.Load<SpriteFont>("vida"));
             }
 
             //Carregando os sons do jogo
@@ -111,10 +119,14 @@ namespace Invasion
             GameObjects.Add(back1);
             GameObjects.Add(back2);
 
-            ship = new Ship(this, new Vector2((Window.ClientBounds.Width-Textures["ship"].Width/5)/2, 
-                                                    (Window.ClientBounds.Height - Textures["ship"].Height/5)), 
+            ship = new Ship(this, new Vector2((Window.ClientBounds.Width - Textures["ship"].Width / 5) / 2,
+                                                    (Window.ClientBounds.Height - Textures["ship"].Height / 5)),
                                  Textures["ship"], SoundEffects["ship"]);
             GameObjects.Add(ship);
+
+            Ufo ufo = new Ufo(this, new Vector2(GameHelper.RandomNext(Window.ClientBounds.Width - 70), -70),
+                                    Textures["ufo1"], velocidade_nivel, 1);
+            GameObjects.Add(ufo);
         }
 
         /// <summary>
@@ -139,111 +151,277 @@ namespace Invasion
 
             // TODO: Add your update logic here
             UpdateAll(gameTime);
-            TouchCollection tc = TouchPanel.GetState();
-            foreach (TouchLocation tl in tc)
-            {
-                if (tl.State == TouchLocationState.Pressed)
+            if (ship.Vida > 0)
+            {             
+                TouchCollection tc = TouchPanel.GetState();
+                foreach (TouchLocation tl in tc)
                 {
-                    contador_shoot++;
-                    if (contador_shoot == 100)
+                    if (tl.State == TouchLocationState.Pressed)
                     {
-                        contador_shoot = 0;
-                        type_shoot++;
-                        if (type_shoot == 7)
+                        if (contador_shoot == 100)
                         {
-                            type_shoot = 1;
+                            contador_shoot = 0;
+                            type_shoot++;
+                            if (type_shoot == 7)
+                            {
+                                type_shoot = 1;
+                            }
+                        }
+                        if (type_shoot == 1)
+                        {
+                            Shoot1 tiro = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 7, ship.PositionY),
+                                                        Textures["shoot1"], 0);
+                            GameObjects.Add(tiro);
+                            SoundEffects["blaster"].Play();
+                        }
+                        if (type_shoot == 2)
+                        {
+                            Shoot1 tiro1 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 4, ship.PositionY),
+                                                        Textures["shoot1"], -1);
+                            Shoot1 tiro2 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 10, ship.PositionY),
+                                                        Textures["shoot1"], +1);
+                            GameObjects.Add(tiro1);
+                            GameObjects.Add(tiro2);
+                            SoundEffects["blaster"].Play();
+                            SoundEffects["blaster"].Play();
+                        }
+                        if (type_shoot == 3)
+                        {
+                            Shoot1 tiro1 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 4, ship.PositionY),
+                                                        Textures["shoot1"], -1);
+                            Shoot1 tiro2 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 7, ship.PositionY),
+                                                        Textures["shoot1"], -0);
+                            Shoot1 tiro3 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 10, ship.PositionY),
+                                                        Textures["shoot1"], +1);
+                            GameObjects.Add(tiro1);
+                            GameObjects.Add(tiro2);
+                            GameObjects.Add(tiro3);
+                            SoundEffects["blaster"].Play();
+                            SoundEffects["blaster"].Play();
+                            SoundEffects["blaster"].Play();
+                        }
+                        if (type_shoot == 4)
+                        {
+                            Shoot2 tiro = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 7, ship.PositionY),
+                                                        Textures["shoot2"], 0);
+                            GameObjects.Add(tiro);
+                            SoundEffects["ufoshoot"].Play();
+                        }
+                        if (type_shoot == 5)
+                        {
+                            Shoot2 tiro1 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 4, ship.PositionY),
+                                                        Textures["shoot2"], -1);
+                            Shoot2 tiro2 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 10, ship.PositionY),
+                                                        Textures["shoot2"], +1);
+                            GameObjects.Add(tiro1);
+                            GameObjects.Add(tiro2);
+                            SoundEffects["ufoshoot"].Play();
+                            SoundEffects["ufoshoot"].Play();
+                        }
+                        if (type_shoot == 6)
+                        {
+                            Shoot2 tiro1 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 4, ship.PositionY),
+                                                        Textures["shoot2"], -1);
+                            Shoot2 tiro2 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 7, ship.PositionY),
+                                                        Textures["shoot2"], -0);
+                            Shoot2 tiro3 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width / 11 + 10, ship.PositionY),
+                                                        Textures["shoot2"], +1);
+                            GameObjects.Add(tiro1);
+                            GameObjects.Add(tiro2);
+                            GameObjects.Add(tiro3);
+                            SoundEffects["ufoshoot"].Play();
+                            SoundEffects["ufoshoot"].Play();
+                            SoundEffects["ufoshoot"].Play();
                         }
                     }
-                    if (type_shoot == 1)
-                    {
-                        Shoot1 tiro = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 7, ship.PositionY),
-                                                    Textures["shoot1"], 0);                        
-                        GameObjects.Add(tiro);
-                        SoundEffects["blaster"].Play();
-                    }
-                    if (type_shoot == 2)
-                    {
-                        Shoot1 tiro1 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 4, ship.PositionY),
-                                                    Textures["shoot1"], -1);
-                        Shoot1 tiro2 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 10, ship.PositionY),
-                                                    Textures["shoot1"], +1);
-                        GameObjects.Add(tiro1);
-                        GameObjects.Add(tiro2);
-                        SoundEffects["blaster"].Play();
-                        SoundEffects["blaster"].Play();
-                    }
-                    if (type_shoot == 3)
-                    {
-                        Shoot1 tiro1 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 4, ship.PositionY),
-                                                    Textures["shoot1"], -1);
-                        Shoot1 tiro2 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 7, ship.PositionY),
-                                                    Textures["shoot1"], -0);
-                        Shoot1 tiro3 = new Shoot1(this, new Vector2(ship.PositionX + Textures["shoot1"].Width + 10, ship.PositionY),
-                                                    Textures["shoot1"], +1);
-                        GameObjects.Add(tiro1);
-                        GameObjects.Add(tiro2);
-                        GameObjects.Add(tiro3);
-                        SoundEffects["blaster"].Play();
-                        SoundEffects["blaster"].Play();
-                        SoundEffects["blaster"].Play();
-                    }
-                    if (type_shoot == 4)
-                    {
-                        Shoot2 tiro = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 7, ship.PositionY),
-                                                    Textures["shoot2"], 0);
-                        GameObjects.Add(tiro);
-                        SoundEffects["ufoshoot"].Play();
-                    }
-                    if (type_shoot == 5)
-                    {
-                        Shoot2 tiro1 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 4, ship.PositionY),
-                                                    Textures["shoot2"], -1);
-                        Shoot2 tiro2 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 10, ship.PositionY),
-                                                    Textures["shoot2"], +1);
-                        GameObjects.Add(tiro1);
-                        GameObjects.Add(tiro2);
-                        SoundEffects["ufoshoot"].Play();
-                        SoundEffects["ufoshoot"].Play();
-                    }
-                    if (type_shoot == 6)
-                    {
-                        Shoot2 tiro1 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 4, ship.PositionY),
-                                                    Textures["shoot2"], -1);
-                        Shoot2 tiro2 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 7, ship.PositionY),
-                                                    Textures["shoot2"], -0);
-                        Shoot2 tiro3 = new Shoot2(this, new Vector2(ship.PositionX + Textures["shoot2"].Width/11 + 10, ship.PositionY),
-                                                    Textures["shoot2"], +1);
-                        GameObjects.Add(tiro1);
-                        GameObjects.Add(tiro2);
-                        GameObjects.Add(tiro3);
-                        SoundEffects["ufoshoot"].Play();
-                        SoundEffects["ufoshoot"].Play();
-                        SoundEffects["ufoshoot"].Play();
-                    }
                 }
-            }
-            for (int i = 0; i < GameObjects.Count; i++)
-            {
-                Object gob = GameObjects.ElementAt(i);
-                if (gob is Shoot1)
-                {
-                    Shoot1 tiro = (Shoot1)(gob);
-                    if (tiro.PositionY < 0 || tiro.PositionX < 0 || tiro.PositionX > Window.ClientBounds.Width)
-                    {
-                        GameObjects.Remove(tiro);                        
-                    }
-                }
-                if (gob is Shoot2)
-                {
-                    Shoot2 tiro = (Shoot2)(gob);
-                    if (tiro.PositionY < 0 || tiro.PositionX < 0 || tiro.PositionX > Window.ClientBounds.Width)
-                    {
-                        GameObjects.Remove(tiro);
-                    }
-                }
-            }
 
-            base.Update(gameTime);
+                for (int i = 0; i < GameObjects.Count; i++)
+                {
+                    Object gob1 = GameObjects.ElementAt(i);
+                    if (gob1 is Exp)
+                    {
+                        Exp exp = (Exp)(gob1);
+                        if (exp.apagar)
+                        {
+                            GameObjects.Remove(exp);
+                        }
+                    }
+                    if (gob1 is Ufo)
+                    {
+                        Ufo ufo = (Ufo)(gob1);
+                        if (ufo.PositionY > Window.ClientBounds.Height)
+                        {
+                            ufo.PositionX = GameHelper.RandomNext(Window.ClientBounds.Width - 70);
+                            ufo.PositionY = -70;
+                        }
+                        else
+                        {
+                            for (int j = 0; j < GameObjects.Count; j++)
+                            {
+                                Object gob2 = GameObjects.ElementAt(j);
+                                if (gob2 is Shoot1)
+                                {
+                                    Shoot1 tiro = (Shoot1)(gob2);
+                                    Rectangle tiroRect = new Rectangle((int)tiro.PositionX, (int)tiro.PositionY,
+                                                                        Textures["shoot1"].Width, Textures["shoot1"].Height);
+                                    Rectangle ufoRect = new Rectangle((int)ufo.PositionX, (int)ufo.PositionY, 70, 70);
+                                    if (tiroRect.Intersects(ufoRect))
+                                    {
+                                        if (ufo.Tipo == 1)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp1"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 2)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp2"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 3)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp3"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        SoundEffects["explosion"].Play();
+                                        GameObjects.Remove(ufo);
+                                        GameObjects.Remove(tiro);
+                                        inimigos_restantes--;
+                                        contador_shoot++;
+                                        if (ship.Vida < 100)
+                                        {
+                                            ship.Vida += 1;
+                                        }
+                                    }
+                                }
+                                if (gob2 is Shoot2)
+                                {
+                                    Shoot2 tiro = (Shoot2)(gob2);
+                                    Rectangle tiroRect = new Rectangle((int)tiro.PositionX, (int)tiro.PositionY,
+                                                                        Textures["shoot1"].Width, Textures["shoot1"].Height);
+                                    Rectangle ufoRect = new Rectangle((int)ufo.PositionX, (int)ufo.PositionY, 70, 70);
+                                    if (tiroRect.Intersects(ufoRect))
+                                    {
+                                        if (ufo.Tipo == 1)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp1"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 2)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp2"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 3)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp3"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        SoundEffects["explosion"].Play();
+                                        GameObjects.Remove(ufo);
+                                        GameObjects.Remove(tiro);
+                                        inimigos_restantes--;
+                                        contador_shoot++;
+                                        if (ship.Vida < 100)
+                                        {
+                                            ship.Vida += 1;
+                                        }
+                                    }
+                                }
+                                if (gob2 is Ship)
+                                {
+                                    Rectangle shipRect = new Rectangle((int)ship.PositionX, (int)ship.PositionY, 70, 70);
+                                    Rectangle ufoRect = new Rectangle((int)ufo.PositionX, (int)ufo.PositionY, 70, 70);
+                                    if (shipRect.Intersects(ufoRect))
+                                    {
+                                        if (ufo.Tipo == 1)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp1"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 2)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp2"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        if (ufo.Tipo == 3)
+                                        {
+                                            Exp exp = new Exp(this, new Vector2(ufo.PositionX, ufo.PositionY), Textures["exp3"]);
+                                            GameObjects.Add(exp);
+                                        }
+                                        SoundEffects["explosion"].Play();
+                                        GameObjects.Remove(ufo);
+                                        ship.Vida -= 5;
+                                        inimigos_restantes--;
+                                        contador_shoot++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (gob1 is Shoot1)
+                    {
+                        Shoot1 tiro = (Shoot1)(gob1);
+                        if (tiro.PositionY < 0 || tiro.PositionX < 0 || tiro.PositionX > Window.ClientBounds.Width)
+                        {
+                            GameObjects.Remove(tiro);
+                        }
+                    }
+                    if (gob1 is Shoot2)
+                    {
+                        Shoot2 tiro = (Shoot2)(gob1);
+                        if (tiro.PositionY < 0 || tiro.PositionX < 0 || tiro.PositionX > Window.ClientBounds.Width)
+                        {
+                            GameObjects.Remove(tiro);
+                        }
+                    }
+                }
+
+                if (inimigos_restantes == 0)
+                {
+                    inimigos_total++;
+                    velocidade_nivel++;
+                    inimigos_restantes = inimigos_total;
+                    inimigos_fazer = 0;
+                }
+                contar_fazer++;
+                if (contar_fazer == 10)
+                {
+                    contar_fazer = 0;
+                    if (inimigos_fazer < inimigos_total)
+                    {
+                        int tipo = GameHelper.RandomNext(3);
+                        if (tipo == 0)
+                        {
+                            Ufo ufo = new Ufo(this, new Vector2(GameHelper.RandomNext(Window.ClientBounds.Width - 70), -70),
+                                Textures["ufo1"], velocidade_nivel, 1);
+                            GameObjects.Add(ufo);
+                        }
+                        if (tipo == 1)
+                        {
+                            Ufo ufo = new Ufo(this, new Vector2(GameHelper.RandomNext(Window.ClientBounds.Width - 70), -70),
+                                Textures["ufo2"], velocidade_nivel, 2);
+                            GameObjects.Add(ufo);
+                        }
+                        if (tipo == 2)
+                        {
+                            Ufo ufo = new Ufo(this, new Vector2(GameHelper.RandomNext(Window.ClientBounds.Width - 70), -70),
+                                Textures["ufo3"], velocidade_nivel, 3);
+                            GameObjects.Add(ufo);
+                        }
+                        inimigos_fazer++;
+                    }
+                }
+                contar_vida++;
+                if (contar_vida == 100)
+                {
+                    contar_vida = 0;
+                    ship.Vida -= 5;
+                }
+                if (velocidade_nivel > 150)
+                    velocidade_nivel = 1;
+                base.Update(gameTime);
+            }
         }
 
         /// <summary>
@@ -252,14 +430,24 @@ namespace Invasion
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.BlanchedAlmond);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
 
             spriteBatch.Begin();
-            DrawSprites(gameTime, spriteBatch);
-            spriteBatch.End();
+            if (ship.Vida > 0)
+            {
+                DrawSprites(gameTime, spriteBatch);
+                spriteBatch.DrawString(Fonts["vida"], "Vida :" + ship.Vida.ToString() + "%", Vector2.Zero, Color.White);
+            }
+            else
+            {
+                spriteBatch.DrawString(Fonts["vida"], "Game Over", 
+                                        new Vector2(Window.ClientBounds.Width/2 - 50, Window.ClientBounds.Height/2), 
+                                        Color.White);
 
+            }
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

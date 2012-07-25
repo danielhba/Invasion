@@ -23,11 +23,14 @@ namespace Invasion
         int PosicaoX;
         int PosicaoY;
 
+        public int Vida;
+
         Accelerometer accelSensor;
         Vector3 accelReading;
         bool accelActive;
 
-        public Ship(Game game, Vector2 PosicaoInicial, Texture2D texture, SoundEffect SoundShip) : base(game, PosicaoInicial, texture)
+        public Ship(Game game, Vector2 PosicaoInicial, Texture2D texture, SoundEffect SoundShip)
+            : base(game, PosicaoInicial, texture)
         {
             _game = game;
             ShipSound = SoundShip;
@@ -37,7 +40,9 @@ namespace Invasion
             SpriteY = 0;
             PosicaoX = (int)PosicaoInicial.X;
             PosicaoY = (int)PosicaoInicial.Y;
-            
+
+            Vida = 100;
+
             accelReading = new Vector3();
             accelSensor = new Accelerometer();
             accelSensor.ReadingChanged +=
@@ -65,13 +70,17 @@ namespace Invasion
 
         public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
-            SoundContador++;
-            if (SoundContador > 68)
+            if (Vida > 0)
             {
-                ShipSound.Play();
-                SoundContador = 0;
+
+                SoundContador++;
+                if (SoundContador > 68)
+                {
+                    ShipSound.Play();
+                    SoundContador = 0;
+                }
             }
-            
+
             SpriteX++;
             if (SpriteX > 4)
             {
@@ -93,11 +102,11 @@ namespace Invasion
                     PositionX = -SpriteTexture.Width / 10;
                 if (PositionX > _game.Window.ClientBounds.Width - SpriteTexture.Width / 10)
                     PositionX = _game.Window.ClientBounds.Width - SpriteTexture.Width / 10;
-                
+
                 if (PositionY < -SpriteTexture.Height / 10)
                     PositionY = -SpriteTexture.Height / 10;
                 if (PositionY > _game.Window.ClientBounds.Height - SpriteTexture.Height / 10)
-                    PositionY = _game.Window.ClientBounds.Height - SpriteTexture.Height / 10;             
+                    PositionY = _game.Window.ClientBounds.Height - SpriteTexture.Height / 10;
             }
 
             ShipRect = new Rectangle(SpriteX * 70, SpriteY * 70, 70, 70);
